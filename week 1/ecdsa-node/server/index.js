@@ -33,26 +33,28 @@ app.get("/publicKeys/:address/balance", (req, res) => {
     res.send({ balance });
 });
 
-app.post("/send", (req, res) => {
+
+app.post("/send", async(req, res) => {
     //TODO : get a signature from the client-side app
     //recover the public address from the signature 
 
-
-    const { sender, key, recipient, amount } = req.body; //key is the private key -> we verify if the public key extracted from it is the same as the sender
-    // console.log(key);
-    const publicKey = secp.getPublicKey(key);
-    if (toHex(publicKey) != sender)
-        res.status(400).send({ message: "Not enough permissions!" });
-
+    const { sender, sign, recipient, amount } = req.body;
 
     setInitialBalance(sender);
     setInitialBalance(recipient);
 
-    if (publicKeys[sender].balance < amount) {
-        res.status(400).send({ message: "Not enough funds!" });
+    var nonceHash = await secp.utils.sha256(publicKeys[sender].nonce.toString());
+    if (!secp.verify(sign, nonceHash, sender)) {
+        // console.log(sign);
+        // console.log(toHex(nonceHash));
+        // console.log(sender);
+        res.status(400).send({ message: "Not enough permissions !" });
+    } else if (publicKeys[sender].balance < amount) {
+        res.status(400).send({ message: "Not enough funds !" });
     } else {
         publicKeys[sender].balance -= amount;
         publicKeys[recipient].balance += amount;
+        publicKeys[sender].nonce++;
         res.send({ balance: publicKeys[sender].balance });
     }
 });
