@@ -5,7 +5,7 @@ import { useState } from "react";
 
 function App() {
   const [balance, setBalance] = useState(0);
-  const [privateKey, setPrivateKey] = useState("");
+  const [signature, setSignature] = useState("");
   const [publicKey, setPublicKey] = useState("");
 
   return (
@@ -13,12 +13,12 @@ function App() {
       <Wallet
         balance={balance}
         setBalance={setBalance}
-        privateKey={privateKey}
-        setPrivateKey={setPrivateKey}
+        signature={signature}
+        setSignature={setSignature}
         publicKey={publicKey}
         setPublicKey={setPublicKey}
       />
-      <Transfer setBalance={setBalance} publicKey={publicKey} privateKey={privateKey}/>
+      <Transfer setBalance={setBalance} publicKey={publicKey} signature={signature}/>
     </div>
   );
 }
