@@ -3,7 +3,6 @@ const app = express();
 const cors = require("cors");
 const port = 3042;
 const secp = require("ethereum-cryptography/secp256k1");
-const { toHex } = require("ethereum-cryptography/utils");
 
 app.use(cors());
 app.use(express.json());
@@ -35,9 +34,6 @@ app.get("/publicKeys/:address/balance", (req, res) => {
 
 
 app.post("/send", async(req, res) => {
-    //TODO : get a signature from the client-side app
-    //recover the public address from the signature 
-
     const { sender, sign, recipient, amount } = req.body;
 
     setInitialBalance(sender);
@@ -45,9 +41,6 @@ app.post("/send", async(req, res) => {
 
     var nonceHash = await secp.utils.sha256(publicKeys[sender].nonce.toString());
     if (!secp.verify(sign, nonceHash, sender)) {
-        // console.log(sign);
-        // console.log(toHex(nonceHash));
-        // console.log(sender);
         res.status(400).send({ message: "Not enough permissions !" });
     } else if (publicKeys[sender].balance < amount) {
         res.status(400).send({ message: "Not enough funds !" });
